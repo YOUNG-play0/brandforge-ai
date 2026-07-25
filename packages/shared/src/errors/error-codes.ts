@@ -17,6 +17,14 @@ export const ERROR_CODES = {
   PRODUCT_NOT_FOUND: "PRODUCT_NOT_FOUND",
   PIPELINE_RUN_NOT_FOUND: "PIPELINE_RUN_NOT_FOUND",
 
+  // --- Persistance (frontière infrastructure, CODING_STANDARDS.md §5) ---
+  /** Échec technique non rejouable (requête invalide, erreur inattendue). */
+  DATABASE_ERROR: "DATABASE_ERROR",
+  /** Base injoignable ou délai dépassé : une nouvelle tentative a du sens. */
+  DATABASE_UNAVAILABLE: "DATABASE_UNAVAILABLE",
+  /** Conflit de données (unicité violée, ressource liée absente). */
+  DATABASE_CONFLICT: "DATABASE_CONFLICT",
+
   // --- Market Agent (AI_AGENTS.md §2) ---
   NICHE_TOO_VAGUE: "NICHE_TOO_VAGUE",
 

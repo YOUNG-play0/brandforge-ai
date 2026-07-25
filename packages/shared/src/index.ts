@@ -12,6 +12,8 @@ export type { ErrorCode } from "./errors/error-codes.js";
 export { createAgentError } from "./errors/agent-error.js";
 export type { AgentError } from "./errors/agent-error.js";
 
+export { InfrastructureError, isInfrastructureError } from "./errors/infrastructure-error.js";
+
 export { agentOk, agentFail } from "./result/agent-result.js";
 export type { AgentResult } from "./result/agent-result.js";
 
