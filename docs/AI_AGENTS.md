@@ -96,7 +96,8 @@ interface BrandAgentInput {
 ```ts
 interface BrandAgentOutput {
   nameOptions: string[];       // 3 à 5 propositions de nom
-  selectedName?: string;       // rempli après validation utilisateur (étape suivante)
+  // `selectedName` n'appartient pas à la sortie de l'agent : le choix du nom est porté
+  // par l'entité `Brand` lors du point de validation utilisateur (`selectBrandName`).
   positioning: string;
   tone: string;
   colorPalette: Array<{ hex: string; role: "primary" | "secondary" | "accent" }>;
@@ -231,11 +232,15 @@ interface SeoAgentOutput {
 
 ### Entrée
 ```ts
-interface ShopifyAgentInput {
-  storeProjectId: string;
-  action: "PUBLISH_STORE" | "PUBLISH_PRODUCT" | "SYNC_PRODUCT";
-  payload: unknown; // typé selon l'action (StoreProject ou Product)
-}
+// Union discriminée par `action` : la règle « entrée strictement typée » (§1) interdit
+// un payload `unknown`, le type varie donc selon l'action demandée.
+type ShopifyAgentInput =
+  | { storeProjectId: string; action: "PUBLISH_STORE" }
+  | {
+      storeProjectId: string;
+      action: "PUBLISH_PRODUCT" | "SYNC_PRODUCT";
+      productId: string;
+    };
 ```
 
 ### Sortie
