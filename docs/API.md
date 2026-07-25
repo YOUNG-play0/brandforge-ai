@@ -187,6 +187,12 @@ Les codes d'erreur reprennent ceux définis par agent dans `AI_AGENTS.md` (ex. `
 - `PRODUCT_NOT_FOUND`
 - `PIPELINE_RUN_NOT_FOUND`
 
+Codes remontés par la couche de persistance (convertis à la frontière infrastructure,
+cf. CODING_STANDARDS.md §5) :
+- `DATABASE_ERROR` (échec technique non rejouable)
+- `DATABASE_UNAVAILABLE` (base injoignable — `retryable: true`)
+- `DATABASE_CONFLICT` (unicité violée, ressource liée absente)
+
 Un projet appartenant à un autre utilisateur retourne `STORE_PROJECT_NOT_FOUND`, et non `UNAUTHORIZED` : cela évite de révéler l'existence d'un identifiant à un tiers.
 
 ---

@@ -1,0 +1,221 @@
+// Schéma de base de données BrandForge AI.
+//
+// Implémente DATABASE.md v1.0 (tel que corrigé par docs/DECISIONS/0002).
+// Aucune logique métier ici : uniquement de la structure et des contraintes de données —
+// les règles métier vivent dans `packages/domain` (DATABASE.md §1).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum PipelineStatus {
+  DRAFT
+  RUNNING
+  COMPLETED
+  FAILED
+  PAUSED
+}
+
+enum AssetType {
+  LOGO
+  LOGO_VARIANT
+  BRAND_BOOK_PDF
+  COLOR_SWATCH
+}
+
+enum ProductSource {
+  ALIEXPRESS
+  MANUAL
+}
+
+enum ProductStatus {
+  IMPORTED
+  REWRITTEN
+  SEO_OPTIMIZED
+  PUBLISHED
+}
+
+enum AgentName {
+  MARKET
+  BRAND
+  STORE_BUILDER
+  PRODUCT
+  SEO
+  IMAGE
+  SHOPIFY
+  BLOG
+  MARKETING
+}
+
+enum StepStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  // Import de masse partiellement réussi : n'interrompt pas le pipeline (WORKFLOWS.md §5).
+  PARTIAL_SUCCESS
+  FAILED
+  SKIPPED
+}
+
+// ============================================================================
+// Modèles
+// ============================================================================
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  storeProjects StoreProject[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+/// Entité pivot : un projet = une marque en cours de création.
+model StoreProject {
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  niche        String
+  targetMarket String
+  status       PipelineStatus @default(DRAFT)
+
+  nicheAnalysis NicheAnalysis?
+  brand         Brand?
+  products      Product[]
+  pipelineRuns  PipelineRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Le dashboard liste les projets d'un utilisateur par date de mise à jour.
+  @@index([userId, updatedAt])
+}
+
+/// Résultat produit par le Market Agent.
+model NicheAnalysis {
+  id                   String       @id @default(uuid())
+  storeProjectId       String       @unique
+  storeProject         StoreProject @relation(fields: [storeProjectId], references: [id], onDelete: Cascade)
+  keywords             String[]
+  competitors          Json
+  priceRangeMin        Decimal      @db.Decimal(12, 2)
+  priceRangeMax        Decimal      @db.Decimal(12, 2)
+  relevanceScore       Float
+  differentiationAngle String
+  rawAnalysis          Json
+  /// Point de validation utilisateur bloquant avant l'étape Branding (WORKFLOWS.md §3).
+  validatedByUser      Boolean      @default(false)
+  createdAt            DateTime     @default(now())
+}
+
+/// Résultat produit par le Brand Agent.
+model Brand {
+  id             String       @id @default(uuid())
+  storeProjectId String       @unique
+  storeProject   StoreProject @relation(fields: [storeProjectId], references: [id], onDelete: Cascade)
+  /// Propositions de nom soumises à l'utilisateur (AI_AGENTS.md §3).
+  nameOptions    String[]
+  /// Nom définitif : `null` tant que l'utilisateur n'a pas choisi.
+  name           String?
+  positioning    String
+  tone           String
+  colorPalette   Json
+  typography     Json
+  logoBriefing   String
+  /// `null` tant que le logo n'a pas été généré.
+  logoUrl        String?
+  validatedByUser Boolean     @default(false)
+  assets         BrandAsset[]
+  createdAt      DateTime     @default(now())
+}
+
+model BrandAsset {
+  id        String    @id @default(uuid())
+  brandId   String
+  brand     Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  type      AssetType
+  url       String
+  createdAt DateTime  @default(now())
+
+  @@index([brandId])
+}
+
+/// Produit importé puis enrichi par le Product Agent.
+model Product {
+  id             String       @id @default(uuid())
+  storeProjectId String
+  storeProject   StoreProject @relation(fields: [storeProjectId], references: [id], onDelete: Cascade)
+  /// `null` pour un produit saisi manuellement (`MANUAL`).
+  sourceUrl      String?
+  sourcePlatform ProductSource
+  originalTitle  String
+  rewrittenTitle String?
+  originalDescription  String
+  rewrittenDescription String?
+  images         String[]
+  price          Decimal       @db.Decimal(12, 2)
+  /// Référence de la fiche une fois publiée sur la plateforme e-commerce.
+  shopifyProductId String?
+  status         ProductStatus @default(IMPORTED)
+  seoContent     SeoContent?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([storeProjectId])
+}
+
+/// Contenu SEO généré. `productId` nullable pour accueillir les articles de blog (V2).
+model SeoContent {
+  id               String   @id @default(uuid())
+  productId        String?  @unique
+  product          Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  targetKeywords   String[]
+  metaTitle        String
+  metaDescription  String
+  optimizedContent String
+  createdAt        DateTime @default(now())
+}
+
+/// Une exécution du pipeline pour un projet (plusieurs tentatives possibles).
+model PipelineRun {
+  id             String         @id @default(uuid())
+  storeProjectId String
+  storeProject   StoreProject   @relation(fields: [storeProjectId], references: [id], onDelete: Cascade)
+  status         PipelineStatus @default(RUNNING)
+  steps          PipelineStep[]
+  startedAt      DateTime       @default(now())
+  finishedAt     DateTime?
+
+  // `findLatestByStoreProjectId` cherche la dernière exécution d'un projet.
+  @@index([storeProjectId, startedAt])
+}
+
+/// Chaque étape exécutée au sein d'un `PipelineRun` (une par agent).
+model PipelineStep {
+  id            String      @id @default(uuid())
+  pipelineRunId String
+  pipelineRun   PipelineRun @relation(fields: [pipelineRunId], references: [id], onDelete: Cascade)
+  agentName     AgentName
+  status        StepStatus  @default(PENDING)
+  /// Entrée exacte reçue par l'agent, journalisée pour rejouer/déboguer l'étape.
+  input         Json
+  output        Json?
+  errorMessage  String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  /// Rang de l'étape dans l'exécution : garantit un ordre de relecture stable.
+  position      Int
+
+  @@unique([pipelineRunId, position])
+  @@index([pipelineRunId])
+}

@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@brandforge/domain": "workspace:*",

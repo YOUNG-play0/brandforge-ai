@@ -161,6 +161,7 @@ Chaque étape exécutée au sein d'un `PipelineRun` (une par agent).
 | errorMessage | String (nullable) | |
 | startedAt | DateTime (nullable) | |
 | finishedAt | DateTime (nullable) | |
+| position | Int | Rang de l'étape dans l'exécution. Rend l'ordre de relecture déterministe (un `SELECT` sans `ORDER BY` ne garantit aucun ordre), ce dont dépend la reprise (WORKFLOWS.md §4.3). Unique par `pipelineRunId`. |
 
 ---
 
@@ -343,6 +344,9 @@ model PipelineStep {
   errorMessage   String?
   startedAt      DateTime?
   finishedAt     DateTime?
+  position       Int
+
+  @@unique([pipelineRunId, position])
 }
 ```
 
@@ -357,7 +361,21 @@ model PipelineStep {
 
 ---
 
-## 6. Prochaines étapes
+## 6. Migrations et index
+
+- Le schéma vit dans `prisma/schema.prisma` ; la migration initiale est versionnée dans
+  `prisma/migrations/`. Les commandes sont pilotées depuis la racine du monorepo
+  (`pnpm db:generate`, `pnpm db:migrate`, `pnpm db:deploy`).
+- Toutes les relations vers `StoreProject` sont en `onDelete: Cascade` : supprimer un
+  projet ne doit pas laisser d'analyse, de marque, de produit ou d'exécution orphelins.
+- Index ajoutés pour les accès réellement effectués par les repositories :
+  `StoreProject(userId, updatedAt)` (liste du dashboard), `PipelineRun(storeProjectId,
+  startedAt)` (dernière exécution), `Product(storeProjectId)`, `BrandAsset(brandId)`,
+  `PipelineStep(pipelineRunId)`.
+
+---
+
+## 7. Prochaines étapes
 
 Une fois ce document validé :
 1. Verrouillage de la version 1.0 (`/docs/DATABASE.md` + entrée dans `/docs/DECISIONS/`).
