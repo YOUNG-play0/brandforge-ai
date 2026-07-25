@@ -69,7 +69,9 @@ Résultat produit par le Market Agent.
 | priceRangeMin | Decimal | |
 | priceRangeMax | Decimal | |
 | relevanceScore | Float | Score de pertinence de la niche |
+| differentiationAngle | String | Angle différenciant suggéré (cf. `MarketAgentOutput`) |
 | rawAnalysis | Json | Sortie brute de l'agent (traçabilité) |
+| validatedByUser | Boolean | Point de validation utilisateur obligatoire avant l'étape Branding (WORKFLOWS.md §3) |
 | createdAt | DateTime | |
 
 ### Brand
@@ -79,12 +81,14 @@ Résultat produit par le Brand Agent.
 |---|---|---|
 | id | UUID | |
 | storeProjectId | UUID (FK, unique) | 1-1 avec StoreProject |
-| name | String | Nom de marque validé |
+| nameOptions | String[] | 3 à 5 propositions produites par le Brand Agent (AI_AGENTS.md §3) |
+| name | String (nullable) | Nom de marque définitif. `null` tant que l'utilisateur n'a pas choisi |
 | positioning | String | Positionnement/pitch de marque |
 | tone | String | Ton éditorial (ex. "premium, épuré, confiant") |
 | colorPalette | Json | Couleurs (hex + rôle : primaire, secondaire, accent) |
 | typography | Json | Polices retenues |
-| logoUrl | String | URL de l'asset logo généré |
+| logoBriefing | String | Brief textuel du logo (transmis au service logo en MVP, à l'Image Agent en V2) |
+| logoUrl | String (nullable) | URL de l'asset logo. `null` tant que le logo n'a pas été généré |
 | validatedByUser | Boolean | Indique si l'utilisateur a validé cette version |
 | createdAt | DateTime | |
 
@@ -106,7 +110,7 @@ Produit importé (ex. via AliExpress) et enrichi par le Product Agent.
 |---|---|---|
 | id | UUID | |
 | storeProjectId | UUID (FK) | |
-| sourceUrl | String | URL d'origine (AliExpress) |
+| sourceUrl | String (nullable) | URL d'origine. `null` pour un produit saisi manuellement (`MANUAL`) |
 | sourcePlatform | Enum (`ProductSource`: ALIEXPRESS, MANUAL...) | |
 | originalTitle | String | Titre original |
 | rewrittenTitle | String | Titre réécrit |
@@ -151,7 +155,7 @@ Chaque étape exécutée au sein d'un `PipelineRun` (une par agent).
 | id | UUID | |
 | pipelineRunId | UUID (FK) | |
 | agentName | Enum (`AgentName`: MARKET, BRAND, STORE_BUILDER, PRODUCT, SEO, IMAGE, SHOPIFY, BLOG, MARKETING) | |
-| status | Enum (`StepStatus`: PENDING, RUNNING, SUCCESS, FAILED, SKIPPED) | |
+| status | Enum (`StepStatus`: PENDING, RUNNING, SUCCESS, PARTIAL_SUCCESS, FAILED, SKIPPED) | `PARTIAL_SUCCESS` couvre l'import de masse partiellement réussi (WORKFLOWS.md §5) |
 | input | Json | Entrée exacte reçue par l'agent (traçabilité/debug) |
 | output | Json (nullable) | Sortie produite |
 | errorMessage | String (nullable) | |
@@ -215,6 +219,7 @@ enum StepStatus {
   PENDING
   RUNNING
   SUCCESS
+  PARTIAL_SUCCESS
   FAILED
   SKIPPED
 }
@@ -255,7 +260,9 @@ model NicheAnalysis {
   priceRangeMin   Decimal
   priceRangeMax   Decimal
   relevanceScore  Float
+  differentiationAngle String
   rawAnalysis     Json
+  validatedByUser Boolean      @default(false)
   createdAt       DateTime     @default(now())
 }
 
@@ -263,12 +270,14 @@ model Brand {
   id                String        @id @default(uuid())
   storeProjectId    String        @unique
   storeProject      StoreProject  @relation(fields: [storeProjectId], references: [id])
-  name              String
+  nameOptions       String[]
+  name              String?
   positioning       String
   tone              String
   colorPalette      Json
   typography        Json
-  logoUrl           String
+  logoBriefing      String
+  logoUrl           String?
   validatedByUser   Boolean       @default(false)
   assets            BrandAsset[]
   createdAt         DateTime      @default(now())
@@ -287,7 +296,7 @@ model Product {
   id                    String         @id @default(uuid())
   storeProjectId        String
   storeProject          StoreProject   @relation(fields: [storeProjectId], references: [id])
-  sourceUrl             String
+  sourceUrl             String?
   sourcePlatform        ProductSource
   originalTitle         String
   rewrittenTitle        String?

@@ -37,6 +37,17 @@ export default tseslint.config(
       "@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
     },
   },
+  // Tests et doublures : une doublure en mémoire implémente légitimement un port
+  // asynchrone de façon synchrone, et le type de retour des helpers de test est inféré.
+  {
+    files: ["**/*.test.ts", "**/test-support/**/*.ts"],
+    rules: {
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      // Faux positif sur les assertions vitest du type `expect(mock.method)`.
+      "@typescript-eslint/unbound-method": "off",
+    },
+  },
   // Les fichiers de configuration à la racine ne sont pas couverts par un tsconfig applicatif.
   {
     files: ["**/*.config.{js,mjs,cjs,ts}", "eslint.config.mjs"],

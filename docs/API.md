@@ -181,6 +181,13 @@ Les codes d'erreur reprennent ceux définis par agent dans `AI_AGENTS.md` (ex. `
 - `UNAUTHORIZED`
 - `STORE_PROJECT_NOT_FOUND`
 - `INVALID_PIPELINE_STATE` (ex. tenter de publier un produit avant la validation de la marque)
+- `VALIDATION_ERROR` (entrée invalide, ou sortie d'agent non conforme rejetée avant persistance)
+- `BRAND_NOT_FOUND`
+- `NICHE_ANALYSIS_NOT_FOUND`
+- `PRODUCT_NOT_FOUND`
+- `PIPELINE_RUN_NOT_FOUND`
+
+Un projet appartenant à un autre utilisateur retourne `STORE_PROJECT_NOT_FOUND`, et non `UNAUTHORIZED` : cela évite de révéler l'existence d'un identifiant à un tiers.
 
 ---
 
