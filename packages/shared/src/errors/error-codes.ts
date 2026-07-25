@@ -31,6 +31,15 @@ export const ERROR_CODES = {
   // --- Fournisseur IA, transverse à tous les agents génératifs ---
   AI_PROVIDER_TIMEOUT: "AI_PROVIDER_TIMEOUT",
   AI_PROVIDER_INVALID_RESPONSE: "AI_PROVIDER_INVALID_RESPONSE",
+  /** Quota dépassé (HTTP 429) : réessayer plus tard a du sens. */
+  AI_PROVIDER_RATE_LIMIT: "AI_PROVIDER_RATE_LIMIT",
+  /** Panne du fournisseur (HTTP 5xx, réseau injoignable). */
+  AI_PROVIDER_UNAVAILABLE: "AI_PROVIDER_UNAVAILABLE",
+  /**
+   * Clé d'API invalide ou révoquée (HTTP 401/403).
+   * Non rejouable : réessayer consommerait le budget de tentatives sans jamais aboutir.
+   */
+  AI_PROVIDER_AUTH_ERROR: "AI_PROVIDER_AUTH_ERROR",
 
   // --- Brand Agent (AI_AGENTS.md §3) ---
   BRAND_NAME_CONFLICT: "BRAND_NAME_CONFLICT",

@@ -193,6 +193,11 @@ cf. CODING_STANDARDS.md §5) :
 - `DATABASE_UNAVAILABLE` (base injoignable — `retryable: true`)
 - `DATABASE_CONFLICT` (unicité violée, ressource liée absente)
 
+Codes remontés par le fournisseur IA :
+- `AI_PROVIDER_RATE_LIMIT` (quota dépassé — `retryable: true`)
+- `AI_PROVIDER_UNAVAILABLE` (panne fournisseur ou réseau — `retryable: true`)
+- `AI_PROVIDER_AUTH_ERROR` (clé invalide ou révoquée — `retryable: false`)
+
 Un projet appartenant à un autre utilisateur retourne `STORE_PROJECT_NOT_FOUND`, et non `UNAUTHORIZED` : cela évite de révéler l'existence d'un identifiant à un tiers.
 
 ---

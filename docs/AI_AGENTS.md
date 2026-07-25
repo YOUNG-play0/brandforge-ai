@@ -71,6 +71,12 @@ interface MarketAgentOutput {
 - `AI_PROVIDER_TIMEOUT` (retryable: true)
 - `AI_PROVIDER_INVALID_RESPONSE` (retryable: true)
 
+Erreurs transverses remontées par tout `IAiProvider` (cf. §9) :
+- `AI_PROVIDER_RATE_LIMIT` (retryable: true — quota dépassé, HTTP 429)
+- `AI_PROVIDER_UNAVAILABLE` (retryable: true — panne du fournisseur ou réseau)
+- `AI_PROVIDER_AUTH_ERROR` (retryable: **false** — clé invalide ou révoquée ; rejouer
+  épuiserait le budget de tentatives sans jamais aboutir)
+
 ### Dépendances
 - `IAiProvider` (Groq)
 - Optionnel V2 : `IWebSearchProvider` pour enrichir l'analyse concurrentielle réelle (MVP : analyse basée sur les connaissances du modèle + mots-clés fournis).
@@ -309,6 +315,10 @@ interface MarketingAgentOutput {
 
 1. **Idempotence autant que possible** : réexécuter un agent avec la même entrée doit produire un résultat cohérent (pas nécessairement identique pour les agents génératifs, mais toujours valide).
 2. **Timeout obligatoire** : chaque appel à `IAiProvider` doit avoir un timeout configuré (valeur par défaut à fixer dans `CODING_STANDARDS.md`).
+   L'implémentation du port applique le timeout et traduit les échecs en `AgentError`, mais
+   **ne rejoue jamais** : le nombre de tentatives et le backoff appartiennent à
+   l'Orchestrator (WORKFLOWS.md §4.1). Empiler un retry transport et un retry d'étape
+   multiplierait les appels facturés sans que le total soit maîtrisé.
 3. **Aucun agent n'appelle un autre agent directement.** Seul l'Orchestrator séquence les agents. Cela garantit qu'un agent reste testable isolément.
 4. **Toute sortie d'agent est validée (schéma) avant d'être persistée**, pour éviter qu'une réponse IA malformée corrompe la base.
 5. **Chaque exécution d'agent correspond à un `PipelineStep`** (cf. DATABASE.md), avec `input`/`output` journalisés.
