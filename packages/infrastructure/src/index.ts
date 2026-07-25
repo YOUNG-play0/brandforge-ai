@@ -24,5 +24,11 @@ export { PrismaBrandRepository } from "./database/repositories/prisma-brand.repo
 export { PrismaProductRepository } from "./database/repositories/prisma-product.repository.js";
 export { PrismaSeoContentRepository } from "./database/repositories/prisma-seo-content.repository.js";
 
+// --- Fournisseur IA ---
+export { GroqAiProvider } from "./ai-provider/groq-ai-provider.js";
+export type { FetchLike } from "./ai-provider/groq-ai-provider.js";
+export { loadGroqConfig } from "./ai-provider/groq-config.js";
+export type { GroqConfig } from "./ai-provider/groq-config.js";
+
 // --- Ports techniques transverses ---
 export { UuidGenerator, SystemClock } from "./system/system-adapters.js";

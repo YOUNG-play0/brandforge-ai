@@ -15,10 +15,11 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@brandforge/domain": "workspace:*",
-    "@brandforge/shared": "workspace:*"
+    "@brandforge/shared": "workspace:*",
+    "zod": "^3.25.76"
   }
 }
