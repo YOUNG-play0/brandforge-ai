@@ -1,0 +1,10 @@
+**/dist/
+**/build/
+**/.next/
+**/node_modules/
+**/coverage/
+pnpm-lock.yaml
+packages/infrastructure/src/database/generated/
+
+# Documents fondateurs : contenu source (source de vérité), non reformaté par Prettier.
+docs/**/*.md

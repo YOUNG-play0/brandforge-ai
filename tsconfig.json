@@ -1,0 +1,11 @@
+{
+  // Build par références de projet pour les packages du cœur (tsc -b).
+  // apps/web est typé indépendamment via Next.js (next build), hors de ce graphe composite.
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/domain" },
+    { "path": "./packages/ai-agents" },
+    { "path": "./packages/infrastructure" }
+  ]
+}

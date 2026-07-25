@@ -1,0 +1,23 @@
+{
+  "name": "@brandforge/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cœur métier : entités, use cases et ports. Indépendant de tout framework (ARCHITECTURE.md §1).",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@brandforge/shared": "workspace:*"
+  }
+}

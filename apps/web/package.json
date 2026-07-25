@@ -1,0 +1,23 @@
+{
+  "name": "@brandforge/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Application Next.js — couche de présentation uniquement. Aucune logique métier (ARCHITECTURE.md §2).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@brandforge/domain": "workspace:*",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}

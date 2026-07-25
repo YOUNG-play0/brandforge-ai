@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+.next/
+out/
+
+# Test / coverage
+coverage/
+.vitest/
+
+# Environment (jamais de valeurs réelles commitées — cf. CODING_STANDARDS.md §9)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Prisma generated client
+packages/infrastructure/src/database/generated/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
