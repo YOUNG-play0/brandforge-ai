@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# BrandForge AI — garde-fou anti-secrets.
+#
+# Bloque tout commit contenant une clé d'API ou un identifiant de base de données.
+# Motivation : `.env.example` est un fichier VERSIONNÉ ; l'éditer avec de vraies valeurs
+# (notamment via l'interface web de GitHub) les publie immédiatement, et un secret poussé
+# reste accessible sur les serveurs GitHub même après réécriture de l'historique.
+#
+# Ce hook est versionné dans `.githooks/` et activé par `core.hooksPath`, positionné
+# automatiquement par le script `prepare` de package.json lors d'un `pnpm install`.
+#
+# Contournement en cas de faux positif avéré : git commit --no-verify
+
+set -e
+
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
+fail() {
+  printf "\n${RED}✖ COMMIT BLOQUÉ — secret détecté${NC}\n\n"
+  printf "%b\n" "$1"
+  printf "\n${YELLOW}Que faire :${NC}\n"
+  printf "  1. Retirer la valeur réelle du fichier versionné.\n"
+  printf "  2. La placer dans .env (ignoré par git), jamais dans .env.example.\n"
+  printf "  3. Si la clé a déjà été exposée, la RÉVOQUER — la retirer du fichier ne suffit pas.\n"
+  printf "\nContournement (à n'utiliser que sur un faux positif avéré) :\n"
+  printf "  git commit --no-verify\n\n"
+  exit 1
+}
+
+# --- 1. Le fichier .env ne doit jamais être versionné ---------------------------------
+staged_env=$(git diff --cached --name-only --diff-filter=A | grep -E '(^|/)\.env$' || true)
+if [ -n "$staged_env" ]; then
+  fail "Le fichier ${RED}.env${NC} est en cours d'ajout au dépôt :\n  $staged_env\n\nCe fichier contient les valeurs réelles et doit rester local (voir .gitignore)."
+fi
+
+# --- 2. Recherche de secrets dans les lignes AJOUTÉES ---------------------------------
+# Seules les lignes ajoutées sont inspectées : un secret déjà présent dans l'historique
+# doit être traité par révocation, pas en bloquant tous les commits suivants.
+#
+# Le hook s'exclut lui-même : il contient les motifs recherchés en clair.
+added=$(git diff --cached --unified=0 --diff-filter=ACM -- . ':(exclude).githooks/pre-commit' \
+  | grep -E '^\+[^+]' || true)
+
+if [ -z "$added" ]; then
+  exit 0
+fi
+
+check() {
+  pattern="$1"
+  label="$2"
+  match=$(printf '%s\n' "$added" | grep -oE "$pattern" | head -1 || true)
+  if [ -n "$match" ]; then
+    # Seul un préfixe est affiché : inutile de recopier le secret entier dans le terminal.
+    prefix=$(printf '%s' "$match" | cut -c1-12)
+    fail "${label}\n  Détecté : ${RED}${prefix}...${NC}"
+  fi
+}
+
+check 'gsk_[A-Za-z0-9]{30,}'                   "Clé d'API ${RED}Groq${NC}."
+check 'npg_[A-Za-z0-9]{10,}'                   "Mot de passe ${RED}Neon${NC} (PostgreSQL)."
+check 'shpat_[a-fA-F0-9]{32}'                  "Token ${RED}Shopify Admin API${NC}."
+check 'shpss_[a-fA-F0-9]{32}'                  "Token ${RED}Shopify Storefront API${NC}."
+check 'sk-(ant|proj)-[A-Za-z0-9_-]{20,}'       "Clé d'API ${RED}Anthropic/OpenAI${NC}."
+
+# Chaîne de connexion PostgreSQL avec de vrais identifiants.
+# Les placeholders documentaires (`user:password@localhost`) sont volontairement tolérés.
+pg=$(printf '%s\n' "$added" \
+  | grep -oE 'postgres(ql)?://[A-Za-z0-9_.-]+:[^@[:space:]"]+@[A-Za-z0-9_.-]+' \
+  | grep -vE '://user:password@localhost' \
+  | head -1 || true)
+if [ -n "$pg" ]; then
+  host=$(printf '%s' "$pg" | sed -E 's#.*@##')
+  fail "Chaîne de connexion ${RED}PostgreSQL${NC} avec identifiants réels.\n  Hôte : ${RED}${host}${NC}"
+fi
+
+exit 0
