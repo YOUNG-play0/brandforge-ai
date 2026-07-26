@@ -58,6 +58,24 @@ cp .env.example .env      # renseigner les valeurs (jamais commitées)
 | `pnpm test`      | Tests (vitest) de chaque package                       |
 | `pnpm build`     | Build de tous les packages                             |
 
+## Secrets
+
+Les valeurs réelles vivent dans `.env` (ignoré par git). `.env.example` est **versionné**
+et ne contient que des placeholders — l'éditer avec de vraies valeurs, en particulier via
+l'interface web de GitHub, les publie immédiatement.
+
+Un hook `pre-commit` versionné dans `.githooks/` bloque tout commit contenant une clé
+Groq, un mot de passe Neon, un token Shopify ou une chaîne de connexion PostgreSQL avec
+identifiants réels. Il est activé automatiquement par `pnpm install` (script `prepare`,
+qui positionne `core.hooksPath`). Activation manuelle si besoin :
+
+```bash
+git config core.hooksPath .githooks
+```
+
+> Un secret déjà poussé reste accessible sur les serveurs GitHub même après réécriture de
+> l'historique : la seule remédiation est de **révoquer** la clé.
+
 ## Workflow Git
 
 - `main` : versions stables. `develop` : intégration. `feature/*` : une fonctionnalité
