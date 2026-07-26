@@ -38,6 +38,9 @@ export type { HttpFetch, HttpResponse } from "./http/http-fetch.js";
 export { loadShopifyConfig, normalizeStoreDomain } from "./shopify-client/shopify-config.js";
 export type { ShopifyConfig } from "./shopify-client/shopify-config.js";
 export { ShopifyTokenProvider } from "./shopify-client/shopify-token-provider.js";
+export { ShopifyGraphQlClient, rejectUserErrors } from "./shopify-client/shopify-graphql-client.js";
+export type { ShopifyUserError } from "./shopify-client/shopify-graphql-client.js";
+export { ShopifyEcommercePlatform } from "./shopify-client/shopify-ecommerce-platform.js";
 export type { IShopifyTokenProvider } from "./shopify-client/shopify-token-provider.js";
 
 // --- Ports techniques transverses ---

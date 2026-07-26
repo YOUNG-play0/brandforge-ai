@@ -271,6 +271,9 @@ L'obtention, la mise en cache et le renouvellement sont entièrement pris en cha
 
 ### Dépendances
 - `IEcommercePlatform`
+- `IProductRepository` et `ISeoContentRepository` : l'entrée ne transporte qu'un
+  `productId`, l'agent doit donc lire le produit et son contenu SEO à publier. Le contenu
+  SEO prime sur la description réécrite lorsqu'il existe (cf. `/docs/DECISIONS/0006`).
 
 ---
 

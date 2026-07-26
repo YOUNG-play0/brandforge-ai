@@ -23,15 +23,25 @@ export interface ShopifyConfig {
   readonly clientSecret: string;
   readonly apiVersion: string;
   readonly timeoutMs: number;
+  /**
+   * URL publique d'une archive ZIP de thème servant de base à la boutique générée.
+   *
+   * Optionnelle : sans elle, le Store Builder réutilise le thème déjà publié sur la
+   * boutique plutôt que d'en créer un (cf. docs/DECISIONS/0006).
+   */
+  readonly baseThemeUrl?: string;
 }
 
 export function loadShopifyConfig(): ShopifyConfig {
+  const baseThemeUrl = process.env["SHOPIFY_BASE_THEME_URL"]?.trim();
+
   return {
     storeDomain: normalizeStoreDomain(requireEnv("SHOPIFY_STORE_DOMAIN")),
     clientId: requireEnv("SHOPIFY_CLIENT_ID"),
     clientSecret: requireEnv("SHOPIFY_CLIENT_SECRET"),
     apiVersion: process.env["SHOPIFY_API_VERSION"]?.trim() || DEFAULT_SHOPIFY_API_VERSION,
     timeoutMs: optionalNumberEnv("SHOPIFY_TIMEOUT_MS", DEFAULT_SHOPIFY_TIMEOUT_MS),
+    ...(baseThemeUrl === undefined || baseThemeUrl.length === 0 ? {} : { baseThemeUrl }),
   };
 }
 
