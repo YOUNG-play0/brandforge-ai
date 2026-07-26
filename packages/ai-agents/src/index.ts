@@ -14,3 +14,16 @@ export {
   buildMarketAgentPrompt,
 } from "./market-agent/market-agent.prompt.js";
 export { parseMarketAnalysis, marketAnalysisSchema } from "./market-agent/market-agent.schema.js";
+
+export { BrandAgent } from "./brand-agent/brand.agent.js";
+export {
+  BRAND_AGENT_SYSTEM_PROMPT,
+  buildBrandAgentPrompt,
+} from "./brand-agent/brand-agent.prompt.js";
+export {
+  parseBrandProposal,
+  toBrandAgentOutput,
+  brandProposalSchema,
+  MIN_NAME_OPTIONS,
+  MAX_NAME_OPTIONS,
+} from "./brand-agent/brand-agent.schema.js";
