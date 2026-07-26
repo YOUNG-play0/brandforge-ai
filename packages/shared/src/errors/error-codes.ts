@@ -55,9 +55,16 @@ export const ERROR_CODES = {
   CONTENT_TOO_SHORT: "CONTENT_TOO_SHORT",
 
   // --- Shopify Agent (AI_AGENTS.md §4 et §7) ---
+  /**
+   * Échec d'authentification Shopify : identifiants client invalides ou révoqués,
+   * application désinstallée de la boutique, ou portées (scopes) insuffisantes.
+   * Non rejouable — nécessite une intervention sur la configuration de l'application.
+   */
   SHOPIFY_AUTH_ERROR: "SHOPIFY_AUTH_ERROR",
   SHOPIFY_RATE_LIMIT: "SHOPIFY_RATE_LIMIT",
   SHOPIFY_VALIDATION_ERROR: "SHOPIFY_VALIDATION_ERROR",
+  /** Panne Shopify (HTTP 5xx) ou réseau injoignable : réessayer a du sens. */
+  SHOPIFY_UNAVAILABLE: "SHOPIFY_UNAVAILABLE",
 } as const;
 
 /** Union de tous les codes d'erreur connus du système. */

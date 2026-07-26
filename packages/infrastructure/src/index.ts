@@ -30,5 +30,15 @@ export type { FetchLike } from "./ai-provider/groq-ai-provider.js";
 export { loadGroqConfig } from "./ai-provider/groq-config.js";
 export type { GroqConfig } from "./ai-provider/groq-config.js";
 
+// --- HTTP ---
+export { globalHttpFetch, safeText } from "./http/http-fetch.js";
+export type { HttpFetch, HttpResponse } from "./http/http-fetch.js";
+
+// --- Shopify ---
+export { loadShopifyConfig, normalizeStoreDomain } from "./shopify-client/shopify-config.js";
+export type { ShopifyConfig } from "./shopify-client/shopify-config.js";
+export { ShopifyTokenProvider } from "./shopify-client/shopify-token-provider.js";
+export type { IShopifyTokenProvider } from "./shopify-client/shopify-token-provider.js";
+
 // --- Ports techniques transverses ---
 export { UuidGenerator, SystemClock } from "./system/system-adapters.js";

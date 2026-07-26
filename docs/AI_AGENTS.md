@@ -259,9 +259,15 @@ interface ShopifyAgentOutput {
 ```
 
 ### Erreurs possibles
-- `SHOPIFY_AUTH_ERROR` (retryable: false)
+- `SHOPIFY_AUTH_ERROR` (retryable: false — identifiants client refusés, application désinstallée, ou portées insuffisantes)
 - `SHOPIFY_RATE_LIMIT` (retryable: true, avec backoff)
 - `SHOPIFY_VALIDATION_ERROR` (retryable: false — données invalides à corriger en amont)
+- `SHOPIFY_UNAVAILABLE` (retryable: true — panne Shopify ou réseau injoignable)
+
+**Authentification** : l'accès à l'API Admin passe par un token obtenu à la demande via le
+flux OAuth « client credentials grant » et expirant sous ~24 h (cf. `/docs/DECISIONS/0005`).
+L'obtention, la mise en cache et le renouvellement sont entièrement pris en charge par
+`infrastructure/shopify-client` : l'agent n'en a aucune connaissance.
 
 ### Dépendances
 - `IEcommercePlatform`

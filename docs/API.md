@@ -198,6 +198,9 @@ Codes remontés par le fournisseur IA :
 - `AI_PROVIDER_UNAVAILABLE` (panne fournisseur ou réseau — `retryable: true`)
 - `AI_PROVIDER_AUTH_ERROR` (clé invalide ou révoquée — `retryable: false`)
 
+Codes remontés par la plateforme e-commerce :
+- `SHOPIFY_UNAVAILABLE` (panne Shopify ou réseau — `retryable: true`)
+
 Un projet appartenant à un autre utilisateur retourne `STORE_PROJECT_NOT_FOUND`, et non `UNAUTHORIZED` : cela évite de révéler l'existence d'un identifiant à un tiers.
 
 ---
