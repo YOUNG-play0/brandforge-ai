@@ -191,6 +191,11 @@ Le MVP sera considéré comme validé si et seulement si :
 4. Une boutique Shopify est effectivement créée/configurée automatiquement (thème + structure).
 5. Au moins un produit peut être importé via l'extension Chrome AliExpress et republié avec une fiche réécrite et optimisée SEO.
 6. La boutique publiée est accessible et fonctionnelle (pas seulement en preview).
+   *Réserve technique* : Shopify n'expose aucune API permettant de lever la protection par
+   mot de passe d'une boutique. Cette action reste **manuelle** dans l'administration et
+   constitue donc un point de validation utilisateur supplémentaire. De même, l'application
+   de la palette et de la typographie aux réglages du thème n'est pas automatisée à ce
+   stade (cf. `/docs/DECISIONS/0006`).
 7. L'utilisateur peut suivre visuellement l'état du pipeline (étape en cours/terminée/en erreur).
 8. Le tout fonctionne sur le cas réel "lunettes de soleil" sans intervention manuelle en dehors des points de validation prévus (choix du nom, choix des produits à importer).
 
