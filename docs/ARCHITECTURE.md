@@ -281,6 +281,7 @@ stateDiagram-v2
 
 - **Changer de fournisseur IA** : implémenter un nouveau `IAiProvider` dans `infrastructure/ai-provider`, sans toucher aux agents ni au domaine.
 - **Supporter une autre plateforme e-commerce que Shopify** : implémenter `IEcommercePlatform` (ex. WooCommerce), le `Store Builder Agent` et le `Shopify Agent` restent inchangés dans leur contrat.
+- **Changement du mode d'authentification d'une plateforme** : `IEcommercePlatform` ne comporte volontairement **aucune notion de jeton, de clé ou de session**. L'obtention et le renouvellement des identifiants sont un détail d'implémentation confiné à `infrastructure/shopify-client`. Le passage de Shopify d'un token statique au flux OAuth « client credentials grant » (cf. `/docs/DECISIONS/0005`) n'a ainsi modifié ni le port, ni le domaine, ni les agents.
 - **Ajouter l'Image Agent (V2)** : le port existe déjà dans `domain/orchestration`, il suffit d'ajouter l'implémentation dans `ai-agents/image-agent`.
 - **Multi-projets / persona Agence (V3)** : le modèle `StoreProject` est déjà pensé comme une entité indépendante rattachée à un utilisateur, ce qui permettra la gestion de plusieurs projets sans refonte.
 - **Autre source de produits que AliExpress** : le port `IProductSource` permet d'ajouter d'autres connecteurs sans modifier le `Product Agent`.
